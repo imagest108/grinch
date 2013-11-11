@@ -1,0 +1,539 @@
+<html>
+	<head>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+		<script>
+		var context;
+		var WIDTH;
+		var HEIGHT;
+		var dx, dy;
+		var screenNum; 
+		var radiuslist = [];
+		var throwing=new Boolean();
+		var xlist = [];
+		var ylist = [];
+		var devilPos1 = {
+			x : 3000,
+			y : 1000
+		};
+		var devilPos2 = {
+			x : 400,
+			y : 1000
+		};
+		var devilPos3 = {
+			x : 50,
+			y : 1000
+		};
+
+		var playerList = [];
+
+		var characterDic1 = [{
+			section:1, 
+			x: 1029, 
+			y: 634,
+			w: 57,
+			h: 57, 
+			url:"http://itp.nyu.edu/~jj1357/characters/ObamaF.jpg"
+		}, 
+		{
+			section:1, 
+			x: 1132, 
+			y: 589,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/stevejobsF.jpg"
+		}, 
+		{
+			section:1, 
+			x: 1241, 
+			y: 548,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/ladygagaF.jpg"
+		}, 
+		{
+			section:1, 
+			x: 1491, 
+			y: 509,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/danielshiffmanF.jpg"
+		}, 
+		{
+			section:1,
+			x: 1548, 
+			y: 417,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/nickiminajF.jpg"
+		}, 
+		{
+			section:1, 
+			x: 1810, 
+			y: 491,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/spongebobF.jpg"
+		}, 
+		{
+			section:1, 
+			x: 1548, 
+			y: 417,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/marilynmonroeF.jpg"
+		}, 
+		{
+			section:1, 
+			x: 2079, 
+			y: 399,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/michaeljacksonF.jpg"
+		}, 
+		{
+			section:1, 
+			x: 2166, 
+			y: 388,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/katyperryF.jpg"
+		}, 
+		{
+			section:1, 
+			x: 2237, 
+			y: 370,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/harrypotterF.jpg"
+		}, 
+		{
+			section:1, 
+			x: 2312, 
+			y: 370,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/mimiF.jpg"
+		}, 
+		{
+			section:1, 
+			x: 2394, 
+			y: 379,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/jacksparrowF.jpg"
+		}, 
+		{
+			section:1,
+			x: 2469, 
+			y: 399,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/conanF.jpg"
+		}, 
+		{
+			section:1, 
+			x: 2547, 
+			y: 388,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/hitlerF.jpg"
+		}];
+		var characterDic2 = [{
+			section:2, 
+			x: 74, 
+			y: 385,
+			w: 57,
+			h: 57, 
+			url:"http://itp.nyu.edu/~jj1357/characters/ObamaF.jpg"
+		}, 
+		{
+			section:2, 
+			x: 195, 
+			y: 369,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/stevejobsF.jpg"
+		}, 
+		{
+			section:2, 
+			x: 305, 
+			y: 347,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/ladygagaF.jpg"
+		}, 
+		{
+			section:2, 
+			x: 406, 
+			y: 331,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/danielshiffmanF.jpg"
+		}, 
+		{
+			section:2,
+			x: 514, 
+			y: 331,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/nickiminajF.jpg"
+		}, 
+		{
+			section:2, 
+			x: 1810, 
+			y: 491,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/spongebobF.jpg"
+		}, 
+		{
+			section:2, 
+			x: 627, 
+			y: 347,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/marilynmonroeF.jpg"
+		}, 
+		{
+			section:2, 
+			x: 733, 
+			y: 310,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/michaeljacksonF.jpg"
+		}, 
+		{
+			section:2, 
+			x: 867, 
+			y: 316,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/katyperryF.jpg"
+		}, 
+		{
+			section:2, 
+			x: 996, 
+			y: 347,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/harrypotterF.jpg"
+		}, 
+		{
+			section:2, 
+			x: 1165, 
+			y: 370,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/mimiF.jpg"
+		}, 
+		{
+			section:2, 
+			x: 1349, 
+			y: 316,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/jacksparrowF.jpg"
+		}, 
+		{
+			section:2,
+			x: 1456, 
+			y: 530,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/conanF.jpg"
+		}, 
+		{
+			section:2, 
+			x: 1564, 
+			y: 515,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/hitlerF.jpg"
+		}];
+
+		var characterDic3 = [{
+			section:3, 
+			x: 187, 
+			y: 430,
+			w: 57,
+			h: 57, 
+			url:"http://itp.nyu.edu/~jj1357/characters/ObamaF.jpg"
+		}, 
+		{
+			section:3, 
+			x: 262, 
+			y: 397,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/stevejobsF.jpg"
+		}, 
+		{
+			section:3, 
+			x: 377, 
+			y: 402,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/ladygagaF.jpg"
+		}, 
+		{
+			section:3, 
+			x: 472, 
+			y: 438,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/danielshiffmanF.jpg"
+		}, 
+		{
+			section:3,
+			x: 514, 
+			y: 331,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/nickiminajF.jpg"
+		}, 
+		{
+			section:3, 
+			x: 559, 
+			y: 445,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/spongebobF.jpg"
+		}, 
+		{
+			section:3, 
+			x: 640, 
+			y: 454,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jj1357/characters/marilynmonroeF.jpg"
+		}, 
+		{
+			section:3, 
+			x: 733, 
+			y: 310,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/michaeljacksonF.jpg"
+		}, 
+		{
+			section:3, 
+			x: 725, 
+			y: 478,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/katyperryF.jpg"
+		}, 
+		{
+			section:3, 
+			x: 814, 
+			y: 507,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/harrypotterF.jpg"
+		}, 
+		{
+			section:3, 
+			x: 904, 
+			y: 525,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/mimiF.jpg"
+		}, 
+		{
+			section:3, 
+			x: 978, 
+			y: 634,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/jacksparrowF.jpg"
+		}, 
+		{
+			section:3,
+			x: 1053, 
+			y: 672,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/conanF.jpg"
+		}, 
+		{
+			section:3, 
+			x: 1134, 
+			y: 615,
+			w: 57,
+			h: 57, 
+			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/hitlerF.jpg"
+		}];
+
+
+		//Ju's
+		//var socket = io.connect('http://ec2-54-200-42-18.us-west-2.compute.amazonaws.com:8080/');
+		//Jess's
+		var socket = io.connect('http://ec2-54-200-79-16.us-west-2.compute.amazonaws.com:8080/');
+			console.log("hello", window.location.pathname);
+			var path = window.location.pathname;
+			var role = null;
+			socket.on('connect', function(){
+				if(path == '/display1') {
+					role = 'display';
+					screenNum = 1;
+				} else if(path == '/display2') {
+					role = 'display';
+					screenNum = 2;
+				} else if(path == '/display3') {
+					role = 'display';
+					screenNum = 3;
+				} else if(path == '/1') {
+					role = 'user_group1';
+				} else if(path == '/2') {
+					role = 'user_group2';
+				} else if(path == '/3') {
+					role = 'user_group3';
+				}	
+				socket.emit('register',role);
+				//console.log(socket.socket.sessionid, role);
+			});
+			socket.on('render', function (data){
+				console.log(data);
+				// draw user on the screen! 
+				if(data.role === "display"){
+					console.log("This is a display screen!")					
+					init(); 
+					
+				}else if( data.role === "user_group1" || data.role === "user_group2" || data.role === "user_group3"){
+
+					getPlayerData(screenNum, data.index);
+				}
+			});
+			
+			function init(){
+					context = thecanvas.getContext('2d');
+					WIDTH = thecanvas.width;
+					HEIGHT = thecanvas.height;
+				
+					var intervalId = setInterval(draw,30);
+								
+			};
+			
+			/*
+			var locationAPI = "/json/iconposition.json";
+ 			var getLoc = function(){
+ 				$.getJSON( locationAPI, function (data){
+					console.log(data);
+	  			});
+			};
+			*/
+
+			function createBG(data){
+				
+					var backgroundimg = new Image();
+					backgroundimg.src = "http://itp.nyu.edu/~jj1357/grinchimages/bg_screen"+data+".jpg";
+					backgroundimg.width = 3840;
+					backgroundimg.height = 1080;
+					context.drawImage(backgroundimg,0,0);
+
+			}
+
+			var getPlayerData = function(screenNum, index){
+
+					if(screenNum == 1){
+						playerList.push(characterDic1[index-1]);
+						xlist.push(characterDic1[index-1].x+19);
+						ylist.push(characterDic1[index-1].y+57);
+					}else if(screenNum == 2){
+						playerList.push(characterDic2[index-1]);
+						xlist.push(characterDic2[index-1].x+19);
+						ylist.push(characterDic2[index-1].y+57);		
+					}else if (screenNum == 3){
+						playerList.push(characterDic3[index-1]);
+						xlist.push(characterDic3[index-1].x+19);
+						ylist.push(characterDic3[index-1].y+57);
+					}
+					radiuslist.push(10);
+					throwing = true;
+			};
+
+			var drawCharacter = function(data){
+
+				for(var i = 0; i < playerList.length; i++){
+					if(playerList[i].section === data){
+					var img = new Image();
+					img.src = playerList[i].url;
+					context.drawImage(img, playerList[i].x, playerList[i].y, playerList[i].w, playerList[i].h);	
+					};
+				}
+					
+          	};
+
+          	var updateBall = function(){
+          			var easing = 0.03;
+          			var targetx;
+          			var targety;
+
+          			if(screenNum==1){
+          					targetx = devilPos1.x;
+          					targety = devilPos1.y;
+          				} else if(screenNum==2){
+          					targetx = devilPos2.x;
+          					targety = devilPos2.y;
+          				} else if(screenNum==3){
+          					targetx = devilPos3.x;
+          					targety = devilPos3.y;
+          			}
+          			
+          			for(var i = 0 ; i < ylist.length ; i++){
+ 
+          				
+          				dx = targetx - xlist[i];
+          				if(Math.abs(dx)>1){
+          					xlist[i] += dx * easing; 
+          				} 
+          				dy = targety - ylist[i];
+          				if(Math.abs(dy)>1){
+          					ylist[i] += dy * easing; 
+          					if(radiuslist[i] >= 80){
+          						radiuslist[i] = 80;
+          					} else {
+          						radiuslist[i]++;
+          					}
+          				} else {
+          					xlist[i] = playerList[i].x+19;
+	    					ylist[i] = playerList[i].y+57;
+	    					radiuslist[i] = 10;
+	    					console.log("ball " + i +"'s x: "+ xlist[i]);
+	    					console.log("ball " + i +"'s y: "+ ylist[i]);
+	    				}
+	    			
+	    			
+	    			}
+    			
+    	
+    			
+          	};
+          	var drawBall = function(index){
+          		for(var i =0; i<index; i++){
+	          			context.beginPath();
+	    				context.fillStyle="#ffffff";
+	    				context.arc(xlist[i],ylist[i],radiuslist[i],0,Math.PI*2,true); 
+	    				context.closePath();
+	    				context.fill();
+          		}
+          		
+          	};
+
+          	var draw = function(){
+          		createBG(screenNum);
+          		drawCharacter(screenNum);
+          		updateBall();
+          		drawBall(ylist.length);
+          		//console.log("canvas is animating!")
+          	};
+          	
+		</script>
+	</head>
+	<body style = "margin: 0px;">
+		<div id = "bgImage"></div>
+		<div id = "container" width= "3840"></div>
+		<canvas id="thecanvas" width= "3840" height = "1080"></canvas>
+	</body>
+</html>
