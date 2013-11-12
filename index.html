@@ -1,5 +1,12 @@
 <html>
 	<head>
+
+		<style>
+		body {
+			margin : 0px;
+		}
+
+		</style>
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
 		<script>
@@ -553,10 +560,13 @@
 					screenNum = 3;
 				} else if(path == '/1') {
 					role = 'user_group1';
+					guiInit();
 				} else if(path == '/2') {
 					role = 'user_group2';
+					guiInit();
 				} else if(path == '/3') {
 					role = 'user_group3';
+					guiInit();
 				}	
 				socket.emit('register',role);
 				//console.log(socket.socket.sessionid, role);
@@ -573,24 +583,64 @@
 					getPlayerData(screenNum, data.index);
 				}
 			});
+
+			function guiInit(){
+				
+					var container=document.createElement("div");
+					container.setAttribute('id', 'container');
+					container.setAttribute("width", "320");
+					container.setAttribute("height", "480");
+					document.body.appendChild(container);	
+
+					var log = document.createElement("h4");
+					log.setAttribute('id','log');
+					log.innerHTML = "Press the button to throw a snowball!";
+					container.appendChild(log);
+
+					var attack = document.createElement("button");
+					attack.setAttribute('id','attack');
+					attack.setAttribute('onclick', 'attack();');
+					attack.innerHTML = "Throw the ball!";
+					container.appendChild(attack);
+
+					var hide = document.createElement("button");
+					hide.setAttribute('id','hide');
+					hide.setAttribute('onclick', 'hide();');
+					hide.innerHTML = "Hide!";
+					container.appendChild(hide);
+
+			}
+			
+			function attack(){
+
+
+
+
+			}
+
+			function hide(){
+
+
+
+
+			}
+
 			
 			function init(){
+					
+					var thecanvas = document.createElement("canvas");
+					thecanvas.setAttribute('id', 'thecanvas');
+					thecanvas.width = 3840;
+					thecanvas.height = 1080;
+					document.body.appendChild(thecanvas);
+
 					context = thecanvas.getContext('2d');
 					WIDTH = thecanvas.width;
 					HEIGHT = thecanvas.height;
 				
-					var intervalId = setInterval(draw,30);
+					var intervalId = setInterval(draw,30);///check
 								
 			};
-			
-			/*
-			var locationAPI = "/json/iconposition.json";
- 			var getLoc = function(){
- 				$.getJSON( locationAPI, function (data){
-					console.log(data);
-	  			});
-			};
-			*/
 
 			function createBG(data){
 				
@@ -645,19 +695,7 @@
           			var easing = 0.03;
           			var targetx;
           			var targety;
-          			/*
-
-          			if(screenNum==1){
-          					targetx = devilPos1.x;
-          					targety = devilPos1.y;
-          				} else if(screenNum==2){
-          					targetx = devilPos2.x;
-          					targety = devilPos2.y;
-          				} else if(screenNum==3){
-          					targetx = devilPos3.x;
-          					targety = devilPos3.y;
-          			}
-          			*/
+ 
           			for(var i = 0 ; i < ylist.length ; i++){
  
           				dx = playerList[i].tx - xlist[i];
@@ -682,11 +720,8 @@
 	    					//console.log("ball " + i +"'s y: "+ ylist[i]);
 	    				}
 	    			
-	    			
-	    			}
-    			
-    	
-    			
+	    		}
+    				
           	};
           	var drawBall = function(index){
           		for(var i =0; i<index; i++){
@@ -709,9 +744,6 @@
           	
 		</script>
 	</head>
-	<body style = "margin: 0px;">
-		<div id = "bgImage"></div>
-		<div id = "container" width= "3840"></div>
-		<canvas id="thecanvas" width= "3840" height = "1080"></canvas>
+	<body>
 	</body>
 </html>
