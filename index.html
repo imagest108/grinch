@@ -19,20 +19,51 @@
 		var throwing=new Boolean();
 		var xlist = [];
 		var ylist = [];
-		var devilPos1 = {
+
+		var grinchIsOn = false;
+
+		//standard ==> 11520, 1080
+		var absoluteGrinchLoc = {
+			section : 1,
 			x : 3000,
-			y : 1000
-		};
-		var devilPos2 = {
-			x : 400,
-			y : 1000
-		};
-		var devilPos3 = {
-			x : 50,
-			y : 1000
+			y : 700,
+			w : 3000,
+			h : 900
 		};
 
+		//var grinchScreen1, grinchScreen2, grinchScreen3;
+		
+		var grinchScreen1 = {
+			section: 1,
+			x : 0,
+			y : 0,
+			w : 0,
+			h : 0 
+		};
+		var grinchScreen2 = {
+			section: 2,
+			x : 0,
+			y : 0,
+			w : 0,
+			h : 0
+		};
+		var grinchScreen3 = {
+			section: 3,
+			x : 0,
+			y : 0,
+			w : 0,
+			h : 0
+		};
+		
+	
 		var playerList = [];
+
+		//status options : change ready - attack - hide 
+
+		var ready = "http://~~~~";
+		var attack = "http://~~~~";
+		var hide = "http://~~~~";
+
 
 		var characterDic1 = [{
 			section:1, 
@@ -567,7 +598,10 @@
 				} else if(path == '/3') {
 					role = 'user_group3';
 					guiInit();
-				}	
+				} else if(path == '/grinch') {
+					role = 'grinch';
+					guiInit();
+				}			
 				socket.emit('register',role);
 				//console.log(socket.socket.sessionid, role);
 			});
@@ -577,12 +611,49 @@
 				if(data.role === "display"){
 					console.log("This is a display screen!")					
 					init(); 
+				}else if(data.role === "user_group1" || data.role === "user_group2" || data.role === "user_group3"){
+					getPlayerData(screenNum, data);
+				}else if(data.role === "grinch"){
+					calibrateGrinchLoc();
 					
-				}else if( data.role === "user_group1" || data.role === "user_group2" || data.role === "user_group3"){
-
-					getPlayerData(screenNum, data.index);
 				}
 			});
+
+			socket.on('setGrinchLoc', function (data){
+				
+				//console.log(data);
+				//console.log(data.x + "," + data.y + "," + data.section + " in setGrinchLoc");
+				if(data.section === 1) grinchScreen1 = data;
+				else if(data.section === 2) grinchScreen2 = data;
+				else if(data.section === 3) grinchScreen3 = data;
+				grinchIsOn = true;
+			});
+
+			function calibrateGrinchLoc(){
+				
+				socket.emit('calibrateLoc', absoluteGrinchLoc);	
+			}
+
+			var updateGrinch = function(){
+
+				grinchScreen1.x += 5;
+				grinchScreen2.x += 5;
+				grinchScreen3.x += 5;
+				/*if(absoluteGrinchLoc.x == 3840 || absoluteGrinchLoc.x == 7680){
+				  calibrateGrinchLoc();
+				}*/
+			};
+
+			var drawGrinch = function(data){
+
+				context.beginPath();
+	    		context.fillStyle="#00ff00";
+	    		context.rect(data.x, data.y, data.w, data.h); 
+	    		context.closePath();
+	    		context.fill();
+	    		//console.log("grinch location : "+x + " , "+y);
+			};
+
 
 			function guiInit(){
 				
@@ -625,7 +696,7 @@
 
 			}
 
-			
+
 			function init(){
 					
 					var thecanvas = document.createElement("canvas");
@@ -652,10 +723,12 @@
 
 			}
 
-			var getPlayerData = function(screenNum, index){
+			var getPlayerData = function(screenNum, data){
 
 					if(screenNum == 1){
+
 						playerList.push(characterDic1[index-1]);
+						playerList[playerList.length-1].index = playerList.length;
 						xlist.push(characterDic1[index-1].x+19);
 						ylist.push(characterDic1[index-1].y+57);
 					}else if(screenNum == 2){
@@ -736,6 +809,14 @@
 
           	var draw = function(){
           		createBG(screenNum);
+				
+				if(grinchIsOn === true){
+					updateGrinch();
+	          		drawGrinch(grinchScreen1);
+	          		drawGrinch(grinchScreen2);
+	          		drawGrinch(grinchScreen3);
+	          	};
+
           		drawCharacter(screenNum);
           		updateBall();
           		drawBall(ylist.length);
