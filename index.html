@@ -1,830 +1,562 @@
 <html>
-	<head>
+        <head>
 
-		<style>
-		body {
-			margin : 0px;
-		}
-
-		</style>
-		<script src="/socket.io/socket.io.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
-		<script>
-		var context;
-		var WIDTH;
-		var HEIGHT;
-		var dx, dy;
-		var screenNum; 
-		var radiuslist = [];
-		var throwing=new Boolean();
-		var xlist = [];
-		var ylist = [];
-
-		var grinchIsOn = false;
-
-		//standard ==> 11520, 1080
-		var absoluteGrinchLoc = {
-			section : 1,
-			x : 3000,
-			y : 700,
-			w : 3000,
-			h : 900
-		};
-
-		//var grinchScreen1, grinchScreen2, grinchScreen3;
-		
-		var grinchScreen1 = {
-			section: 1,
-			x : 0,
-			y : 0,
-			w : 0,
-			h : 0 
-		};
-		var grinchScreen2 = {
-			section: 2,
-			x : 0,
-			y : 0,
-			w : 0,
-			h : 0
-		};
-		var grinchScreen3 = {
-			section: 3,
-			x : 0,
-			y : 0,
-			w : 0,
-			h : 0
-		};
-		
-	
-		var playerList = [];
-
-		//status options : change ready - attack - hide 
-
-		var ready = "http://~~~~";
-		var attack = "http://~~~~";
-		var hide = "http://~~~~";
-
-
-		var characterDic1 = [{
-			section:1, 
-			x: 1029, 
-			y: 564,
-			w: 45,
-			h: 107, 
-			tx: Math.floor(Math.random() * (3200 - 2600 + 1)) + 2600,
-			ty: 1000,
-			url:"http://itp.nyu.edu/~jj1357/grinchimages/samplewho_ready.png",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/grinchimages/samplewho_throw.png"
-		}, 
-		{
-			section:1, 
-			x: 1132, 
-			y: 490,
-			w: 60,
-			h: 157, 
-			tx: Math.floor(Math.random() * (3200 - 2600 + 1)) + 2600,
-			ty: 1000,
-			url:"http://itp.nyu.edu/~jj1357/grinchimages/samplewho_ready.png",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/grinchimages/samplewho_throw.png"
-		}, 
-		{
-			section:1, 
-			x: 1241, 
-			y: 500,
-			w: 57,
-			h: 115, 
-			tx: Math.floor(Math.random() * (3200 - 2600 + 1)) + 2600,
-			ty: 1000,
-			url:"http://itp.nyu.edu/~jj1357/grinchimages/samplewho_ready.png",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/grinchimages/samplewho_throw.png"
-		}, 
-		{
-			section:1, 
-			x: 1491, 
-			y: 509,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (3200 - 2600 + 1)) + 2600,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jj1357/characters/danielshiffmanF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/danielshiffmanF.jpg"
-		}, 
-		{
-			section:1,
-			x: 1548, 
-			y: 417,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (3200 - 2600 + 1)) + 2600,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jj1357/characters/nickiminajF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/nickiminajF.jpg"
-		}, 
-		{
-			section:1, 
-			x: 1810, 
-			y: 491,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (3200 - 2600 + 1)) + 2600,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jj1357/characters/spongebobF.jpg",
-			throwing : false,
-			moved_url:"http://itp.nyu.edu/~jj1357/characters/spongebobF.jpg"
-		}, 
-		{
-			section:1, 
-			x: 1548, 
-			y: 417,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (3200 - 2600 + 1)) + 2600,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jj1357/characters/marilynmonroeF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/marilynmonroeF.jpg"
-		}, 
-		{
-			section:1, 
-			x: 2079, 
-			y: 399,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (3200 - 2600 + 1)) + 2600,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/michaeljacksonF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/michaeljacksonF.jpg"
-		}, 
-		{
-			section:1, 
-			x: 2166, 
-			y: 388,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (3200 - 2600 + 1)) + 2600,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/katyperryF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/katyperryF.jpg"
-		}, 
-		{
-			section:1, 
-			x: 2237, 
-			y: 370,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (3200 - 2600 + 1)) + 2600,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/harrypotterF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/harrypotterF.jpg"
-		}, 
-		{
-			section:1, 
-			x: 2312, 
-			y: 370,
-			w: 57,
-			h: 57,
-			tx: Math.floor(Math.random() * (3200 - 2600 + 1)) + 2600,
-			ty: 1000, 
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/mimiF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/mimiF.jpg"
-		}, 
-		{
-			section:1, 
-			x: 2394, 
-			y: 379,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (3200 - 2600 + 1)) + 2600,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/jacksparrowF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/jacksparrowF.jpg"
-		}, 
-		{
-			section:1,
-			x: 2469, 
-			y: 399,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (3200 - 2600 + 1)) + 2600,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/conanF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/conanF.jpg"
-		}, 
-		{
-			section:1, 
-			x: 2547, 
-			y: 388,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (3200 - 2600 + 1)) + 2600,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/hitlerF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/hitlerF.jpg"
-		}];
-		var characterDic2 = [{
-			section:2, 
-			x: 74, 
-			y: 385,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (700 - 400 + 1)) + 400,
-			ty: 1000,
-			url:"http://itp.nyu.edu/~jj1357/characters/ObamaF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/ObamaF.jpg"
-		}, 
-		{
-			section:2, 
-			x: 195, 
-			y: 369,
-			w: 57,
-			h: 57,
-			tx: Math.floor(Math.random() * (700 - 400 + 1)) + 400,
-			ty: 1000, 
-			url: "http://itp.nyu.edu/~jj1357/characters/stevejobsF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/stevejobsF.jpg"
-		}, 
-		{
-			section:2, 
-			x: 305, 
-			y: 347,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (700 - 400 + 1)) + 400,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jj1357/characters/ladygagaF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/ladygagaF.jpg"
-		}, 
-		{
-			section:2, 
-			x: 406, 
-			y: 331,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (700 - 400 + 1)) + 400,
-			ty: 1000,			
-			url: "http://itp.nyu.edu/~jj1357/characters/danielshiffmanF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/danielshiffmanF.jpg"
-		}, 
-		{
-			section:2,
-			x: 514, 
-			y: 331,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (700 - 400 + 1)) + 400,
-			ty: 1000,			
-			url: "http://itp.nyu.edu/~jj1357/characters/nickiminajF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/nickiminajF.jpg"
-		}, 
-		{
-			section:2, 
-			x: 1810, 
-			y: 491,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (700 - 400 + 1)) + 400,
-			ty: 1000,			
-			url: "http://itp.nyu.edu/~jj1357/characters/spongebobF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/spongebobF.jpg"
-		}, 
-		{
-			section:2, 
-			x: 627, 
-			y: 347,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (700 - 400 + 1)) + 400,
-			ty: 1000,			
-			url: "http://itp.nyu.edu/~jj1357/characters/marilynmonroeF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/marilynmonroeF.jpg"
-		}, 
-		{
-			section:2, 
-			x: 733, 
-			y: 310,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (700 - 400 + 1)) + 400,
-			ty: 1000,			
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/michaeljacksonF.jpg",
-			throwing : false,
-			moved_url: "hhttp://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/michaeljacksonF.jpg"
-		}, 
-		{
-			section:2, 
-			x: 867, 
-			y: 316,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (700 - 400 + 1)) + 400,
-			ty: 1000,			
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/katyperryF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/katyperryF.jpg"
-		}, 
-		{
-			section:2, 
-			x: 996, 
-			y: 347,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (700 - 400 + 1)) + 400,
-			ty: 1000,			
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/harrypotterF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/harrypotterF.jpg"
-		}, 
-		{
-			section:2, 
-			x: 1165, 
-			y: 370,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (700 - 400 + 1)) + 400,
-			ty: 1000,			
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/mimiF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/mimiF.jpg"
-		}, 
-		{
-			section:2, 
-			x: 1349, 
-			y: 316,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (700 - 400 + 1)) + 400,
-			ty: 1000,			
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/jacksparrowF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/jacksparrowF.jpg"
-		}, 
-		{
-			section:2,
-			x: 1456, 
-			y: 530,
-			w: 57,
-			h: 57,
-			tx: Math.floor(Math.random() * (700 - 400 + 1)) + 400,
-			ty: 1000,			 
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/conanF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/conanF.jpg"
-		}, 
-		{
-			section:2, 
-			x: 1564, 
-			y: 515,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (700 - 400 + 1)) + 400,
-			ty: 1000,			
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/hitlerF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/hitlerF.jpg"
-		}];
-
-		var characterDic3 = [{
-			section:3, 
-			x: 187, 
-			y: 430,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (150 - 50 + 1)) + 50,
-			ty: 1000,			
-			url:"http://itp.nyu.edu/~jj1357/characters/ObamaF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/ObamaF.jpg"
-		}, 
-		{
-			section:3, 
-			x: 262, 
-			y: 397,
-			w: 57,
-			h: 57,
-			tx: Math.floor(Math.random() * (150 - 50 + 1)) + 50,
-			ty: 1000,	 
-			url: "http://itp.nyu.edu/~jj1357/characters/stevejobsF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/stevejobsF.jpg"
-		}, 
-		{
-			section:3, 
-			x: 377, 
-			y: 402,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (150 - 50 + 1)) + 50,
-			ty: 1000,	
-			url: "http://itp.nyu.edu/~jj1357/characters/ladygagaF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/ladygagaF.jpg"
-		}, 
-		{
-			section:3, 
-			x: 472, 
-			y: 438,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (150 - 50 + 1)) + 50,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jj1357/characters/danielshiffmanF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/danielshiffmanF.jpg"
-		}, 
-		{
-			section:3,
-			x: 514, 
-			y: 331,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (150 - 50 + 1)) + 50,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jj1357/characters/nickiminajF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/nickiminajF.jpg"
-		}, 
-		{
-			section:3, 
-			x: 559, 
-			y: 445,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (150 - 50 + 1)) + 50,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jj1357/characters/spongebobF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/spongebobF.jpg"
-		}, 
-		{
-			section:3, 
-			x: 640, 
-			y: 454,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (150 - 50 + 1)) + 50,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jj1357/characters/marilynmonroeF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jj1357/characters/marilynmonroeF.jpg"
-		}, 
-		{
-			section:3, 
-			x: 733, 
-			y: 310,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (150 - 50 + 1)) + 50,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/michaeljacksonF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/michaeljacksonF.jpg"
-		}, 
-		{
-			section:3, 
-			x: 725, 
-			y: 478,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (150 - 50 + 1)) + 50,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/katyperryF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/katyperryF.jpg"
-		}, 
-		{
-			section:3, 
-			x: 814, 
-			y: 507,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (150 - 50 + 1)) + 50,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/harrypotterF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/harrypotterF.jpg"
-		}, 
-		{
-			section:3, 
-			x: 904, 
-			y: 525,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (150 - 50 + 1)) + 50,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/mimiF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/mimiF.jpg"
-		}, 
-		{
-			section:3, 
-			x: 978, 
-			y: 634,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (150 - 50 + 1)) + 50,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/jacksparrowF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/jacksparrowF.jpg"
-		}, 
-		{
-			section:3,
-			x: 1053, 
-			y: 672,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (150 - 50 + 1)) + 50,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/conanF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/conanF.jpg"
-		}, 
-		{
-			section:3, 
-			x: 1134, 
-			y: 615,
-			w: 57,
-			h: 57, 
-			tx: Math.floor(Math.random() * (150 - 50 + 1)) + 50,
-			ty: 1000,
-			url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/hitlerF.jpg",
-			throwing : false,
-			moved_url: "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/10/hitlerF.jpg"
-		}];
-
-
-		//Ju's
-		//var socket = io.connect('http://ec2-54-200-42-18.us-west-2.compute.amazonaws.com:8080/');
-		//Jess's
-		var socket = io.connect('http://ec2-54-200-79-16.us-west-2.compute.amazonaws.com:8080/');
-			console.log("hello", window.location.pathname);
-			var path = window.location.pathname;
-			var role = null;
-			socket.on('connect', function(){
-				if(path == '/display1') {
-					role = 'display';
-					screenNum = 1;
-				} else if(path == '/display2') {
-					role = 'display';
-					screenNum = 2;
-				} else if(path == '/display3') {
-					role = 'display';
-					screenNum = 3;
-				} else if(path == '/1') {
-					role = 'user_group1';
-					guiInit();
-				} else if(path == '/2') {
-					role = 'user_group2';
-					guiInit();
-				} else if(path == '/3') {
-					role = 'user_group3';
-					guiInit();
-				} else if(path == '/grinch') {
-					role = 'grinch';
-					guiInit();
-				}			
-				socket.emit('register',role);
-				//console.log(socket.socket.sessionid, role);
-			});
-			socket.on('render', function (data){
-				//console.log(data);
-				// draw user on the screen! 
-				if(data.role === "display"){
-					console.log("This is a display screen!")					
-					init(); 
-				}else if(data.role === "user_group1" || data.role === "user_group2" || data.role === "user_group3"){
-					getPlayerData(screenNum, data);
-				}else if(data.role === "grinch"){
-					calibrateGrinchLoc();
-					
+                <style>
+                body {
+                    margin : 0px;
+                }
+                #viewport {
+				    /**
+				     * Position relative so that canvas elements
+				     * inside of it will be relative to the parent
+				     */
+				    position: relative;
 				}
-			});
+ 
+				#viewport canvas {
+				    /**
+				     * Position absolute provides canvases to be able
+				     * to be layered on top of each other
+				     * Be sure to remember a z-index!
+				     */
+				    position: absolute;
+				}
+				canvas {
+				    /**
+				     * Set transparent to let any other canvases render through
+				     */
+				    background-color: transparent;
+				}
 
-			socket.on('setGrinchLoc', function (data){
-				
-				//console.log(data);
-				//console.log(data.x + "," + data.y + "," + data.section + " in setGrinchLoc");
-				if(data.section === 1) grinchScreen1 = data;
-				else if(data.section === 2) grinchScreen2 = data;
-				else if(data.section === 3) grinchScreen3 = data;
-				grinchIsOn = true;
-			});
+                </style>
+                <script src="/socket.io/socket.io.js"></script>
+                <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
 
-			function calibrateGrinchLoc(){
-				
-				socket.emit('calibrateLoc', absoluteGrinchLoc);	
-			}
+                <script>
 
-			var updateGrinch = function(){
+                        var bottomctx;
+                        var middlectx;
+                        var topctx;
+                        var characterctx;
+                        var ballctx;
+                        var id;
+                        var WIDTH;
+                        var HEIGHT;
+                        var dx, dy;
+                        var screenNum; 
+                        
+                        var snowball = "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/11/snowball.png";
+                        var smashed = "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/11/smashedsnowball.png";
 
-				grinchScreen1.x += 5;
-				grinchScreen2.x += 5;
-				grinchScreen3.x += 5;
-				/*if(absoluteGrinchLoc.x == 3840 || absoluteGrinchLoc.x == 7680){
-				  calibrateGrinchLoc();
-				}*/
-			};
+                        var grinchIsOn = false;
+                        var bgisrendered;
 
-			var drawGrinch = function(data){
+                        //standard ==> 11520, 1080
+                        var absoluteGrinchLoc = {
+                                section : 1,
+                                x : 3000,
+                                y : 700,
+                                w : 3000,
+                                h : 900
+                        };
 
-				context.beginPath();
-	    		context.fillStyle="#00ff00";
-	    		context.rect(data.x, data.y, data.w, data.h); 
-	    		context.closePath();
-	    		context.fill();
-	    		//console.log("grinch location : "+x + " , "+y);
-			};
+                        
+                        var grinchScreen1 = {
+                                section: 1,
+                                x : 0,
+                                y : 0,
+                                w : 0,
+                                h : 0 
+                        };
+                        var grinchScreen2 = {
+                                section: 2,
+                                x : 0,
+                                y : 0,
+                                w : 0,
+                                h : 0
+                        };
+                        var grinchScreen3 = {
+                                section: 3,
+                                x : 0,
+                                y : 0,
+                                w : 0,
+                                h : 0
+                        };
 
+                        var playerList = [];
 
-			function guiInit(){
-				
-					var container=document.createElement("div");
-					container.setAttribute('id', 'container');
-					container.setAttribute("width", "320");
-					container.setAttribute("height", "480");
-					document.body.appendChild(container);	
+                        var characterDic1 = [{index:1, section:1, id:null, x:999, y:356, w:60, h:120, bx:1019, by:456, r:10, tx:2936, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:2, section:1, id:null, x:1126, y:306, w:60, h:120, bx:1146, by:406, r:10, tx:2670, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:3, section:1, id:null, x:1190, y:290, w:60, h:120, bx:1210, by:390, r:10, tx:2784, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:4, section:1, id:null, x:1259, y:276, w:60, h:120, bx:1279, by:376, r:10, tx:2804, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:5, section:1, id:null, x:1326, y:264, w:60, h:120, bx:1346, by:376, r:10, tx:2976, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:6, section:1, id:null, x:1394, y:237, w:60, h:120, bx:1414, by:337, r:10, tx:2925, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:7, section:1, id:null, x:1462, y:233, w:60, h:120, bx:1482, by:333, r:10, tx:2711, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:8, section:1, id:null, x:1533, y:226, w:60, h:120, bx:1553, by:326, r:10, tx:2654, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:9, section:1, id:null, x:1599, y:216, w:60, h:120, bx:1619, by:316, r:10, tx:2985, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:10, section:1, id:null, x:1662, y:209, w:60, h:120, bx:1682, by:309, r:10, tx:3062, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:11, section:1, id:null, x:1733, y:204, w:60, h:120, bx:1753, by:304, r:10, tx:2687, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:12, section:1, id:null, x:1805, y:196, w:60, h:120, bx:1825, by:296, r:10, tx:3117, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:13, section:1, id:null, x:1876, y:191, w:60, h:120, bx:1896, by:291, r:10, tx:2603, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:14, section:1, id:null, x:1950, y:188, w:60, h:120, bx:1970, by:288, r:10, tx:2698, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:15, section:1, id:null, x:2020, y:188, w:60, h:120, bx:2040, by:288, r:10, tx:3085, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:16, section:1, id:null, x:2088, y:200, w:60, h:120, bx:2108, by:300, r:10, tx:2789, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:17, section:1, id:null, x:1440, y:501, w:60, h:120, bx:1460, by:601, r:10, tx:3012, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:18, section:1, id:null, x:1503, y:468, w:60, h:120, bx:1523, by:568, r:10, tx:2661, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}];
+                        var characterDic2 = [{index:1, section:2, id:null, x:43, y:199, w:60, h:120, bx:63, by:299, r:10, tx:632, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:2, section:2, id:null, x:119, y:191, w:60, h:120, bx:139, by:291, r:10, tx:463, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:3, section:2, id:null, x:198, y:186, w:60, h:120, bx:218, by:286, r:10, tx:477, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:4, section:2, id:null, x:271, y:180, w:60, h:120, bx:291, by:280, r:10, tx:619, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:5, section:2, id:null, x:345, y:170, w:60, h:120, bx:365, by:270, r:10, tx:502, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:6, section:2, id:null, x:417, y:163, w:60, h:120, bx:437, by:263, r:10, tx:411, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:7, section:2, id:null, x:487, y:157, w:60, h:120, bx:507, by:257, r:10, tx:520, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:8, section:2, id:null, x:567, y:152, w:60, h:120, bx:587, by:252, r:10, tx:515, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:9, section:2, id:null, x:638, y:145, w:60, h:120, bx:658, by:245, r:10, tx:651, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:10, section:2, id:null, x:720, y:150, w:60, h:120, bx:740, by:250, r:10, tx:525, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:11, section:2, id:null, x:795, y:145, w:60, h:120, bx:815, by:245, r:10, tx:681, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:12, section:2, id:null, x:874, y:138, w:60, h:120, bx:894, by:238, r:10, tx:489, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:13, section:2, id:null, x:953, y:121, w:60, h:120, bx:973, by:221, r:10, tx:513, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:14, section:2, id:null, x:1035, y:121, w:60, h:120, bx:1055, by:221, r:10, tx:539, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:15, section:2, id:null, x:1118, y:142, w:60, h:120, bx:1138, by:242, r:10, tx:533, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:16, section:2, id:null, x:145, y:410, w:60, h:120, bx:165, by:510, r:10, tx:642, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:17, section:2, id:null, x:220, y:389, w:60, h:120, bx:240, by:489, r:10, tx:453, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}];
 
-					var log = document.createElement("h4");
-					log.setAttribute('id','log');
-					log.innerHTML = "Press the button to throw a snowball!";
-					container.appendChild(log);
-
-					var attack = document.createElement("button");
-					attack.setAttribute('id','attack');
-					attack.setAttribute('onclick', 'attack();');
-					attack.innerHTML = "Throw the ball!";
-					container.appendChild(attack);
-
-					var hide = document.createElement("button");
-					hide.setAttribute('id','hide');
-					hide.setAttribute('onclick', 'hide();');
-					hide.innerHTML = "Hide!";
-					container.appendChild(hide);
-
-			}
-			
-			function attack(){
+                        var characterDic3 = [{index:1, section:3, id:null, x:1675, y:553, w:60, h:120, bx:1695, by:653, r:10, tx:97, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:2, section:3, id:null, x:1593, y:471, w:60, h:120, bx:1695, by:571, r:10, tx:50, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:3, section:3, id:null, x:1507, y:395, w:60, h:120, bx:1527, by:495, r:10, tx:106, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:4, section:3, id:null, x:1417, y:339, w:60, h:120, bx:1437, by:439, r:10, tx:62, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:5, section:3, id:null, x:1331, y:313, w:60, h:120, bx:1351, by:413, r:10, tx:85, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:6, section:3, id:null, x:1247, y:271, w:60, h:120, bx:1267, by:371, r:10, tx:130, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:7, section:3, id:null, x:1163, y:271, w:60, h:120, bx:1183, by:371, r:10, tx:140, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:8, section:3, id:null, x:1075, y:235, w:60, h:120, bx:1095, by:335, r:10, tx:105, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:9, section:3, id:null, x:985, y:225, w:60, h:120, bx:1005, by:325, r:10, tx:146, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:10, section:3, id:null, x:925, y:195, w:60, h:120, bx:945, by:295, r:10, tx:102, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:11, section:3, id:null, x:833, y:175, w:60, h:120, bx:853, by:275, r:10, tx:65, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:12, section:3, id:null, x:747, y:187, w:60, h:120, bx:767, by:287, r:10, tx:104, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:13, section:3, id:null, x:665, y:193, w:60, h:120, bx:685, by:293, r:10, tx:121, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:14, section:3, id:null, x:805, y:415, w:60, h:120, bx:825, by:515, r:10, tx:147, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:15, section:3, id:null, x:717, y:383, w:60, h:120, bx:737, by:483, r:10, tx:80, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:16, section:3, id:null, x:637, y:364, w:60, h:120, bx:657, by:464, r:10, tx:89, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:17, section:3, id:null, x:561, y:333, w:60, h:120, bx:581, by:433, r:10, tx:71, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}];
 
 
+                        //Ju's
+                        //var socket = io.connect('http://ec2-54-200-42-18.us-west-2.compute.amazonaws.com:8080/');
+                        //Jess's
+                        var socket = io.connect('http://ec2-54-200-79-16.us-west-2.compute.amazonaws.com:8080/');
+                        
+                        var path = window.location.pathname;
+                        var role = null;
+                        socket.on('connect', function(){
+                        if(path == '/display1') {
+                                role = 'display';
+                                screenNum = 1;
+                        } else if(path == '/display2') {
+                                role = 'display';
+                                screenNum = 2;
+                        } else if(path == '/display3') {
+                                role = 'display';
+                                screenNum = 3;
+                        } else if(path == '/1') {
+                                role = 'user_group1';
+                                guiInit(role);
+                        } else if(path == '/2') {
+                                role = 'user_group2';
+                                guiInit(role);
+                        } else if(path == '/3') {
+                                role = 'user_group3';
+                                guiInit(role);
+                        } else if(path == '/grinch') {
+                                role = 'grinch';
+                                guiInit();
+                        }       
+                                socket.emit('register',role);
+                        });
+
+                        socket.on('connect', function (){
+                                id = socket.socket.sessionid;
+                        });
+                        
+                        socket.on('render', function (data){
+                                // draw user on the screen! 
+                                if(data.role === "display"){                                    
+                                        init(); 
+                                                
+                                }else if( data.role === "user_group1" || data.role === "user_group2" || data.role === "user_group3"){
+
+                                        getPlayerData(screenNum, data);
+
+                                } else if(data.role === "grinch"){
+                                        calibrateGrinchLoc();
+                                        
+                                }
+                        });
+                        
+
+                        socket.on('renderThrow', function (data){
 
 
-			}
+                                for(var i =0; i<playerList.length; i++){
+                                        if(playerList[i].id == data.id && playerList[i].section == data.section){
+                                                playerList[i].attack = true;
 
-			function hide(){
+                                        }
+                                }
+                        
+                                
+                        });
+
+                        socket.on('setGrinchLoc', function (data){
+                                //console.log(data);
+                                if(data.section === 1) grinchScreen1 = data;
+                                else if(data.section === 2) grinchScreen2 = data;
+                                else if(data.section === 3) grinchScreen3 = data;
+                                grinchIsOn = true;
+
+
+                        });
+
+                        function calibrateGrinchLoc(){
+                                
+                                socket.emit('calibrateLoc', absoluteGrinchLoc);        
+                        }
+
+                        var updateGrinch = function(){
+
+                                grinchScreen1.x += 5;
+                                grinchScreen2.x += 5;
+                                grinchScreen3.x += 5;
+                                
+                        };
+
+                        var drawGrinch = function(data){
+
+                            context.beginPath();
+                            context.fillStyle="#00ff00";
+                            context.rect(data.x, data.y, data.w, data.h); 
+                            context.closePath();
+                            context.fill();
+      
+                        };
+
+                        function guiInit(role){
+                                        
+                                var container=document.createElement("div");
+                                container.setAttribute('id', 'container');
+                                container.setAttribute("width", "320");
+                                container.setAttribute("height", "480");
+                                document.body.appendChild(container);        
+
+                                var log = document.createElement("h4");
+                                log.setAttribute('id','log');
+                                log.innerHTML = "Press the button to throw a snowball!";
+                                container.appendChild(log);
+
+                                if(role == "user_group1"){
+                                        var attack = document.createElement("button");
+                                        attack.setAttribute('id','attack');
+                                        attack.setAttribute('onclick', 'attackPressed(1);');
+                                        attack.innerHTML = "Throw the ball!";
+                                        container.appendChild(attack);
+
+                                        var hide = document.createElement("button");
+                                        hide.setAttribute('id','hide');
+                                        hide.setAttribute('onclick', 'hide(1);');
+                                        hide.innerHTML = "Hide!";
+                                        container.appendChild(hide);
+
+                                } else if(role == "user_group2"){
+                                        var attack = document.createElement("button");
+                                        attack.setAttribute('id','attack');
+                                        attack.setAttribute('onclick', 'attackPressed(2);');
+                                        attack.innerHTML = "Throw the ball!";
+                                        container.appendChild(attack);
+
+                                        var hide = document.createElement("button");
+                                        hide.setAttribute('id','hide');
+                                        hide.setAttribute('onclick', 'hide(2);');
+                                        hide.innerHTML = "Hide!";
+                                        container.appendChild(hide);
+
+                                } else if(role == "user_group3"){
+                                        var attack = document.createElement("button");
+                                        attack.setAttribute('id','attack');
+                                        attack.setAttribute('onclick', 'attackPressed(3);');
+                                        attack.innerHTML = "Throw the ball!";
+                                        container.appendChild(attack);
+
+                                        var hide = document.createElement("button");
+                                        hide.setAttribute('id','hide');
+                                        hide.setAttribute('onclick', 'hide(3);');
+                                        hide.innerHTML = "Hide!";
+                                        container.appendChild(hide);
+
+                                }
+
+                                
+
+
+                        };
+
+                        function attackPressed(_section){
+
+                                socket.emit('attack', {id: id, section: _section});
+                        };
+                                
+                        function attack(){
+
+                                var easing = 0.03;
+                                for(var i = 0 ; i < playerList.length ; i++){
+
+                                        if(playerList[i].attack === true){
+                                                dx = playerList[i].tx - playerList[i].bx;
+                                                if(Math.abs(dx)>1){
+                                                        playerList[i].bx += dx * easing; 
+                                                } 
+                                                        
+                                                dy = playerList[i].ty - playerList[i].by;
+                                                if(Math.abs(dy)>1){
+                                                        playerList[i].by += dy * easing; 
+                                                                
+                                                        if(playerList[i].r >= 80){
+                                                                playerList[i].r = 80;
+                                                        } else {
+                                                                playerList[i].r++;
+                                                        }
+
+                                                        }
+                                                if(Math.abs(dx)<1 || Math.abs(dy)<1){
+                                                        playerList[i].bx = playerList[i].x+19;
+                                                        playerList[i].by = playerList[i].y+57;
+                                                        playerList[i].r = 10;
+                                                        playerList[i].attack = false;
+                                                }   
+
+
+                                        }                                        
+                               
+                                }
+
+                        };
+
+
+                        function hide(){
 
 
 
 
-			}
 
+                        };
 
-			function init(){
-					
-					var thecanvas = document.createElement("canvas");
-					thecanvas.setAttribute('id', 'thecanvas');
-					thecanvas.width = 3840;
-					thecanvas.height = 1080;
-					document.body.appendChild(thecanvas);
+                                
+                        function init(){
+                                
+                                /*
+                                bgisrendered = false;
 
-					context = thecanvas.getContext('2d');
-					WIDTH = thecanvas.width;
-					HEIGHT = thecanvas.height;
-				
-					var intervalId = setInterval(draw,30);///check
+                                var hiddenCanvas = document.createElement("canvas");
+                                var theCanvas = document.createElement("canvas");
+
+                                hiddenCanvas.setAttribute('id', 'hiddenCanvas');
+                                hiddenCanvas.style.display = "none";
+                                hiddenCanvas.width = 3840;
+                               	hiddenCanvas.height = 1080;
+                                document.getElementById('viewport').appendChild(hiddenCanvas);
+
+                                theCanvas.setAttribute('id', 'theCanvas');
+                                theCanvas.style.display = "block";
+                                theCanvas.width = 3840;
+                               	theCanvas.height = 1080;
+                                document.getElementById('viewport').appendChild(theCanvas);
+
+                                tempCtx = hiddenCanvas.getContext('2d');
+                                ctx = theCanvas.getContext('2d');
+                                
+                                WIDTH = 3840;
+                                HEIGHT = 1080;
+
+								createBG_middle(screenNum);
+								*/
+                                
+                        		var canvasobj;
+                        		var canvasgroup = [];
+
+                                for(var i = 0; i < 5 ; i++){
+                                	canvasobj = document.createElement("canvas");
+                                	canvasobj.setAttribute('id', 'canvas'+i);
+                                	canvasobj.width = 3840;
+                                	canvasobj.height = 1080;
+                                	document.getElementById('viewport').appendChild(canvasobj);
+                                	canvasgroup.push(canvasobj);
+                                }      
+
+                                bottomctx = document.getElementById('canvas0').getContext('2d');
+                                middlectx = document.getElementById('canvas1').getContext('2d');
+                                topctx = document.getElementById('canvas2').getContext('2d');
+                                characterctx = document.getElementById('canvas3').getContext('2d');
+                                ballctx = document.getElementById('canvas4').getContext('2d');
+
+                                WIDTH = 3840;
+                                HEIGHT = 1080;
 								
-			};
+								createBG_middle(screenNum);
+								
+                                /*
+                                var bottomcanvas = document.createElement("canvas");
+                                var middlecanvas = document.createElement("canvas");
+                                var topcanvas = document.createElement("canvas");
+                                var usercanvas = document.createElement("canvas");
+                                var ballcanvas = document.createElement("canvas");
+                                
+                                bottomcanvas.setAttribute('id', 'bottomcanvas');
+                                bottomcanvas.setAttribute('id', 'bottomcanvas');
+                                
+                                thecanvas.width = 3840;
+                                thecanvas.height = 1080;
+                                document.body.appendChild(thecanvas);
 
-			function createBG(data){
-				
-					var backgroundimg = new Image();
-					backgroundimg.src = "http://itp.nyu.edu/~jj1357/grinchimages/bg_screen"+data+".jpg";
-					backgroundimg.width = 3840;
-					backgroundimg.height = 1080;
-					context.drawImage(backgroundimg,0,0);
+                                context = thecanvas.getContext('2d');
+                                WIDTH = thecanvas.width;
+                                HEIGHT = thecanvas.height;
 
-			}
+                                drawBG_bottom(screenNum);
+                                	
 
-			var getPlayerData = function(screenNum, data){
+                                */
 
-					if(screenNum == 1){
+                                /*drawCharacter(screenNum);
+                                drawBG_middle(screenNum);
+                                var intervalId = setInterval(draw,30);///check
+                                drawBG_top(screenNum);
+                                */   
+                                var intervalId = setInterval(draw,20);///check
+                                
+                                                                     
+                        };
 
-						playerList.push(characterDic1[index-1]);
-						playerList[playerList.length-1].index = playerList.length;
-						xlist.push(characterDic1[index-1].x+19);
-						ylist.push(characterDic1[index-1].y+57);
-					}else if(screenNum == 2){
-						playerList.push(characterDic2[index-1]);
-						xlist.push(characterDic2[index-1].x+19);
-						ylist.push(characterDic2[index-1].y+57);		
-					}else if (screenNum == 3){
-						playerList.push(characterDic3[index-1]);
-						xlist.push(characterDic3[index-1].x+19);
-						ylist.push(characterDic3[index-1].y+57);
-					}
-					radiuslist.push(10);
-					throwing = true;
-			};
+                        function drawBG_bottom(){
 
-			var drawCharacter = function(data){
+                        		bottomctx.clearRect(0,0,WIDTH, HEIGHT);
+                        	    var bottomBG = new Image();
+                                bottomBG.src = "http://itp.nyu.edu/~jj1357/grinch_bg/bottom-screen"+screenNum+".jpg";
+                                bottomBG.width = 3840;
+                                bottomBG.height = 1080;
+                                bottomctx.drawImage(bottomBG,0,0);
+                               
 
-				for(var i = 0; i < playerList.length; i++){
-					if(playerList[i].section === data){
+                        };
 
-					radiuslist[i] <= 40 ? playerList[i].throwing = true : playerList[i].throwing = false;
+                        var icewalls = [];   
 
-					var img = new Image();
-						if(playerList[i].throwing === true){
-							img.src = playerList[i].moved_url;
-						}else{
-							img.src = playerList[i].url;
-						}
-					context.drawImage(img, playerList[i].x, playerList[i].y, playerList[i].w, playerList[i].h);	
-					};
+                        function createBG_middle(){
+                                        
+                                for(var i = 1; i < 9; i++){
 
-				}
-					
-          	};
+                                	var middleobj = new Image();
+                                	var tempUrl = "http://itp.nyu.edu/~jj1357/grinch_bg_middleobj/middleobj"+i;
+                                	
+                                	if(i < 4) middleobj.src = tempUrl + "-screen1.png";
+	                                else if(i > 5) middleobj.src = tempUrl + "-screen3.png";
+	                                else middleobj.src = tempUrl + "-screen2.png";
+	                 
+	                                middleobj.width = 3840;
+	                                middleobj.height = 1080;
+	                                icewalls.push(middleobj);
+                                
+                                }     
+                        
+                        };
 
-          	var updateBall = function(){
-          			var easing = 0.03;
-          			var targetx;
-          			var targety;
- 
-          			for(var i = 0 ; i < ylist.length ; i++){
- 
-          				dx = playerList[i].tx - xlist[i];
-          				if(Math.abs(dx)>1){
-          					xlist[i] += dx * easing; 
-          				} 
-          				dy = playerList[i].ty - ylist[i];
-          				if(Math.abs(dy)>1){
-          					ylist[i] += dy * easing; 
-          					if(radiuslist[i] >= 80){
-          						radiuslist[i] = 80;
-          					} else {
-          						radiuslist[i]++;
-          					}
+                        function drawBG_middle(){
 
-          				} else {
-          					xlist[i] = playerList[i].x+19;
-	    					ylist[i] = playerList[i].y+57;
-	    					radiuslist[i] = 10;
-	    					
-	    					//console.log("ball " + i +"'s x: "+ xlist[i]);
-	    					//console.log("ball " + i +"'s y: "+ ylist[i]);
-	    				}
-	    			
-	    		}
-    				
-          	};
-          	var drawBall = function(index){
-          		for(var i =0; i<index; i++){
-	          			context.beginPath();
-	    				context.fillStyle="#ffffff";
-	    				context.arc(xlist[i],ylist[i],radiuslist[i],0,Math.PI*2,true); 
-	    				context.closePath();
-	    				context.fill();
-          		}
-          		
-          	};
+                        	middlectx.clearRect(0,0,WIDTH, HEIGHT);
 
-          	var draw = function(){
-          		createBG(screenNum);
-				
-				if(grinchIsOn === true){
-					updateGrinch();
-	          		drawGrinch(grinchScreen1);
-	          		drawGrinch(grinchScreen2);
-	          		drawGrinch(grinchScreen3);
-	          	};
+                        	if(screenNum === 1){
+                        		middlectx.drawImage(icewalls[0],496,220);
+                        		middlectx.drawImage(icewalls[1],1444,243);
+                        		middlectx.drawImage(icewalls[2],2180,316);
+                        		
+                        	}else if(screenNum === 2){
+                        		middlectx.drawImage(icewalls[3],0,173);
+                        		middlectx.drawImage(icewalls[4],0,56);
+                        		
+                        	}else if(screenNum === 3){
+                        		middlectx.drawImage(icewalls[7],532,164);
+                        		middlectx.drawImage(icewalls[6],0,309);
+                        		middlectx.drawImage(icewalls[5],0,240);
+                        		
+                        		
+                        	}
+                        
+                        }
 
-          		drawCharacter(screenNum);
-          		updateBall();
-          		drawBall(ylist.length);
-          		//console.log("canvas is animating!")
-          	};
-          	
-		</script>
-	</head>
-	<body>
-	</body>
+                        function drawBG_top(data){
+
+                        		topctx.clearRect(0,0,WIDTH, HEIGHT);
+
+
+                        	    var topLayer = new Image();
+                                topLayer.src = "http://itp.nyu.edu/~jj1357/grinch_bg/top-screen"+data+".png";
+                                topLayer.width = 3840;
+                                topLayer.height = 1080;
+                                topctx.drawImage(topLayer,0,0);
+                        }
+
+                        var getPlayerData = function(screenNum, data){
+
+                                if(screenNum == 1){
+                                        characterDic1[data.index-1].id = data.id;
+                                        playerList.push(characterDic1[data.index-1]);
+
+                                }else if(screenNum == 2){
+                                        characterDic2[data.index-1].id = data.id;
+                                        playerList.push(characterDic2[data.index-1]);
+              
+                                }else if (screenNum == 3){
+                                        characterDic3[data.index-1].id = data.id;
+                                        playerList.push(characterDic3[data.index-1]);
+
+                                }
+                                        
+                                        
+                        };
+
+                        var drawCharacter = function(data){
+
+
+                                for(var i = 0; i < playerList.length; i++){
+                                        if(playerList[i].section === data){
+
+                                        		characterctx.clearRect(img, playerList[i].x, playerList[i].y, playerList[i].w, playerList[i].h);
+                                                playerList[i].r <= 40 ? playerList[i].throwing = true : playerList[i].throwing = false;
+
+                                                var img = new Image();
+                                                if(playerList[i].throwing === true){
+                                                        img.src = playerList[i].standingurl;
+                                                }else{
+                                                        img.src = playerList[i].throwingurl;
+                                                }
+                                                characterctx.drawImage(img, playerList[i].x, playerList[i].y, playerList[i].w, playerList[i].h);        
+                                        }
+
+                                }
+                                
+                                                
+                        };
+
+                        var drawBall = function(){
+
+                        		ballctx.clearRect(0,0,WIDTH,HEIGHT);
+
+                                var snowImage = new Image();
+                                //snowImage.src = snowball;
+                                for(var i =0; i<playerList.length; i++){
+                                        //context.beginPath();
+                                        //context.fillStyle="#ffffff";
+                                        //context.arc(playerList[i].bx,playerList[i].by, playerList[i].r,0,Math.PI*2,true);
+                                        
+
+                                        if(playerList[i].by>890){
+                                                snowImage.src = smashed;
+                                        } else{
+                                                snowImage.src = snowball;
+                                        }
+                                        ballctx.drawImage(snowImage, playerList[i].bx, playerList[i].by, playerList[i].r*2, playerList[i].r*2);
+
+                                        //console.log(playerList[i].by);
+                                        //context.closePath();
+                                        //context.fill();
+                                        
+                                        
+                                }
+                        };
+
+                        var draw = function(){
+
+                        		drawBG_bottom();
+                        		//drawing order ==> BG_bottom -> characters -> BG_middle-> BG_top -> Grinch -> balls
+                                
+                                /*if(bgisrendered == false){
+                                	//console.log(bgisrendered);
+                                	drawBG_middle(screenNum);
+                                	//drawBG_top(screenNum);
+                                }*/
+                                drawBG_middle(screenNum);
+                               	drawBG_top(screenNum);
+
+                                drawCharacter(screenNum);
+                                
+                                
+                                /*
+                                if(grinchIsOn === true){
+                                        updateGrinch();
+                                        drawGrinch(grinchScreen1);
+                                        drawGrinch(grinchScreen2);
+                                        drawGrinch(grinchScreen3);
+                                }
+                                */
+                                attack();
+                                drawBall();
+                                bgisrendered = true;
+                        };
+
+                      
+
+                        
+                </script>
+        </head>
+        <body>
+             <div id="viewport"></div>   
+        </body>
 </html>

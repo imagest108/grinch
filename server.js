@@ -6,12 +6,12 @@ httpServer.listen(8080);
 function requestHandler (req, res){
 
         fs.readFile(__dirname + '/index.html',
-            function (err, data) {
-                if (err) {
-                        res.writeHead(500);
-                        return res.end('Error loading index.html');
-                        
-                }
+                function (err, data) {
+                        if (err) {
+                                res.writeHead(500);
+                                return res.end('Error loading index.html');
+                        }
+
                         res.writeHead(200);
                         res.end(data);
                 });
@@ -61,7 +61,7 @@ io.sockets.on('connection', function (socket){
 				console.log(usergroup1[usergroup1.length -1 ]);
 
 				io.sockets.socket(displaygroup[0].id).emit('render', tempData);
-			
+				
 			}else{
 				//make socket disconnect!
 			}
@@ -78,7 +78,7 @@ io.sockets.on('connection', function (socket){
 				console.log(usergroup2[usergroup2.length -1 ]);
 
 				io.sockets.socket(displaygroup[1].id).emit('render', tempData);
-	
+				
 			}else{
 				//make socket disconnect!
 			}
@@ -94,55 +94,58 @@ io.sockets.on('connection', function (socket){
 				console.log(usergroup3[usergroup3.length -1 ]);
 
 				io.sockets.socket(displaygroup[2].id).emit('render', tempData);
-	
+				
 			}else{
 				//make socket disconnect!
 			}
-		} else if(data === "grinch"){
-			
-			if(grinch == null){								
-				tempData = { 
-					id: socket.id, 
-					index: 1,
-					role: data
-				};
-				grinch = tempData;
-				console.log(grinch);
+		}  else if(data === "grinch"){
+                        
+            if(grinch == null){                                                                
+                tempData = { 
+                    id: socket.id, 
+                    index: 1,
+                    role: data
+                };
+            grinch = tempData;
+                                
 
-				io.sockets.socket(displaygroup[0].id).emit('render', tempData);
-	
-			}else{
-				//make socket disconnect!
-			}
-		}
+            io.sockets.socket(displaygroup[0].id).emit('render', tempData);
+        
+            }else{
+                //make socket disconnect!
+            }
+        }
+
+
 	});
 
 	socket.on('calibrateLoc', function (data){
 
-		// console.log("############################");
-		// console.log(data.x +", "+data.y + ": calibrateLoc");
-		// console.log("############################");
-		
-		// var startSection = Math.floor(data.x / 3840) + 1;
-		// var endSection = Math.floor((data.x + data.w) / 3840) + 1;
-  		
-  		for(var i = 0; i < displaygroup.length ; i++){
-	  		
-	  		var calibratedX = data.x - (3840 * i);
-	  		var calibLoc = {
-	  			section : i+1,
-	  			x : calibratedX,
-	  			y : data.y,
-	  			w : data.w,
-	  			h : data.h
-	  		}	
+                  
+        for(var i = 0; i < displaygroup.length ; i++){
+                          
+            var calibratedX = data.x - (3840 * i);
+            var calibLoc = {
+                section : i+1,
+                x : calibratedX,
+                y : data.y,
+                w : data.w,
+                h : data.h
+            };        
 
-	  		io.sockets.socket(displaygroup[i].id).emit('setGrinchLoc', calibLoc);
-  		}	
+            io.sockets.socket(displaygroup[i].id).emit('setGrinchLoc', calibLoc);
+        }        
 
-  	});
+    });
 	
 	socket.on('disconnect', function() {
 		console.log("Client has disconnected");
 	});
+
+	socket.on('attack', function (data){
+		io.sockets.socket(displaygroup[data.section-1].id).emit('renderThrow', data);
+	});
+
+
+	
 });
