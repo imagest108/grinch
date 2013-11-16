@@ -4,23 +4,17 @@
                 <style>
                 body {
                     margin : 0px;
+                    background-color: transparent;
+                    background-repeat:no-repeat;
+
                 }
+
                 #viewport {
-				    /**
-				     * Position relative so that canvas elements
-				     * inside of it will be relative to the parent
-				     */
-				    position: relative;
-				}
- 
-				#viewport canvas {
-				    /**
-				     * Position absolute provides canvases to be able
-				     * to be layered on top of each other
-				     * Be sure to remember a z-index!
-				     */
-				    position: absolute;
-				}
+                    position:relative;
+                }
+                #viewport canvas {
+                    position:absolute;
+                }
 				canvas {
 				    /**
 				     * Set transparent to let any other canvases render through
@@ -39,12 +33,15 @@
                         var topctx;
                         var characterctx;
                         var ballctx;
+                        var grinchctx;
                         var id;
                         var WIDTH;
                         var HEIGHT;
                         var dx, dy;
                         var screenNum; 
                         
+                        var icewalls = [];   
+
                         var snowball = "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/11/snowball.png";
                         var smashed = "http://itp.nyu.edu/~jyp323/ju/wp-content/uploads/2013/11/smashedsnowball.png";
 
@@ -85,7 +82,7 @@
 
                         var playerList = [];
 
-                        var characterDic1 = [{index:1, section:1, id:null, x:999, y:356, w:60, h:120, bx:1019, by:456, r:10, tx:2936, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:2, section:1, id:null, x:1126, y:306, w:60, h:120, bx:1146, by:406, r:10, tx:2670, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:3, section:1, id:null, x:1190, y:290, w:60, h:120, bx:1210, by:390, r:10, tx:2784, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:4, section:1, id:null, x:1259, y:276, w:60, h:120, bx:1279, by:376, r:10, tx:2804, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:5, section:1, id:null, x:1326, y:264, w:60, h:120, bx:1346, by:376, r:10, tx:2976, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:6, section:1, id:null, x:1394, y:237, w:60, h:120, bx:1414, by:337, r:10, tx:2925, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:7, section:1, id:null, x:1462, y:233, w:60, h:120, bx:1482, by:333, r:10, tx:2711, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:8, section:1, id:null, x:1533, y:226, w:60, h:120, bx:1553, by:326, r:10, tx:2654, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:9, section:1, id:null, x:1599, y:216, w:60, h:120, bx:1619, by:316, r:10, tx:2985, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:10, section:1, id:null, x:1662, y:209, w:60, h:120, bx:1682, by:309, r:10, tx:3062, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:11, section:1, id:null, x:1733, y:204, w:60, h:120, bx:1753, by:304, r:10, tx:2687, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:12, section:1, id:null, x:1805, y:196, w:60, h:120, bx:1825, by:296, r:10, tx:3117, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:13, section:1, id:null, x:1876, y:191, w:60, h:120, bx:1896, by:291, r:10, tx:2603, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:14, section:1, id:null, x:1950, y:188, w:60, h:120, bx:1970, by:288, r:10, tx:2698, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:15, section:1, id:null, x:2020, y:188, w:60, h:120, bx:2040, by:288, r:10, tx:3085, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:16, section:1, id:null, x:2088, y:200, w:60, h:120, bx:2108, by:300, r:10, tx:2789, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:17, section:1, id:null, x:1440, y:501, w:60, h:120, bx:1460, by:601, r:10, tx:3012, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:18, section:1, id:null, x:1503, y:468, w:60, h:120, bx:1523, by:568, r:10, tx:2661, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingur:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}];
+                        var characterDic1 = [{index:1, section:1, id:null, x:999, y:356, w:60, h:120, bx:1019, by:456, r:10, tx:2936, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:2, section:1, id:null, x:1126, y:306, w:60, h:120, bx:1146, by:406, r:10, tx:2670, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:3, section:1, id:null, x:1190, y:290, w:60, h:120, bx:1210, by:390, r:10, tx:2784, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:4, section:1, id:null, x:1259, y:276, w:60, h:120, bx:1279, by:376, r:10, tx:2804, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:5, section:1, id:null, x:1326, y:264, w:60, h:120, bx:1346, by:376, r:10, tx:2976, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:6, section:1, id:null, x:1394, y:237, w:60, h:120, bx:1414, by:337, r:10, tx:2925, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:7, section:1, id:null, x:1462, y:233, w:60, h:120, bx:1482, by:333, r:10, tx:2711, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:8, section:1, id:null, x:1533, y:226, w:60, h:120, bx:1553, by:326, r:10, tx:2654, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:9, section:1, id:null, x:1599, y:216, w:60, h:120, bx:1619, by:316, r:10, tx:2985, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:10, section:1, id:null, x:1662, y:209, w:60, h:120, bx:1682, by:309, r:10, tx:3062, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:11, section:1, id:null, x:1733, y:204, w:60, h:120, bx:1753, by:304, r:10, tx:2687, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:12, section:1, id:null, x:1805, y:196, w:60, h:120, bx:1825, by:296, r:10, tx:3117, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:13, section:1, id:null, x:1876, y:191, w:60, h:120, bx:1896, by:291, r:10, tx:2603, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:14, section:1, id:null, x:1950, y:188, w:60, h:120, bx:1970, by:288, r:10, tx:2698, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:15, section:1, id:null, x:2020, y:188, w:60, h:120, bx:2040, by:288, r:10, tx:3085, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:16, section:1, id:null, x:2088, y:200, w:60, h:120, bx:2108, by:300, r:10, tx:2789, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:17, section:1, id:null, x:1440, y:501, w:60, h:120, bx:1460, by:601, r:10, tx:3012, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:18, section:1, id:null, x:1503, y:468, w:60, h:120, bx:1523, by:568, r:10, tx:2661, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}];
                         var characterDic2 = [{index:1, section:2, id:null, x:43, y:199, w:60, h:120, bx:63, by:299, r:10, tx:632, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:2, section:2, id:null, x:119, y:191, w:60, h:120, bx:139, by:291, r:10, tx:463, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:3, section:2, id:null, x:198, y:186, w:60, h:120, bx:218, by:286, r:10, tx:477, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:4, section:2, id:null, x:271, y:180, w:60, h:120, bx:291, by:280, r:10, tx:619, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:5, section:2, id:null, x:345, y:170, w:60, h:120, bx:365, by:270, r:10, tx:502, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:6, section:2, id:null, x:417, y:163, w:60, h:120, bx:437, by:263, r:10, tx:411, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:7, section:2, id:null, x:487, y:157, w:60, h:120, bx:507, by:257, r:10, tx:520, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:8, section:2, id:null, x:567, y:152, w:60, h:120, bx:587, by:252, r:10, tx:515, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:9, section:2, id:null, x:638, y:145, w:60, h:120, bx:658, by:245, r:10, tx:651, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:10, section:2, id:null, x:720, y:150, w:60, h:120, bx:740, by:250, r:10, tx:525, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:11, section:2, id:null, x:795, y:145, w:60, h:120, bx:815, by:245, r:10, tx:681, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:12, section:2, id:null, x:874, y:138, w:60, h:120, bx:894, by:238, r:10, tx:489, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:13, section:2, id:null, x:953, y:121, w:60, h:120, bx:973, by:221, r:10, tx:513, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:14, section:2, id:null, x:1035, y:121, w:60, h:120, bx:1055, by:221, r:10, tx:539, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:15, section:2, id:null, x:1118, y:142, w:60, h:120, bx:1138, by:242, r:10, tx:533, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:16, section:2, id:null, x:145, y:410, w:60, h:120, bx:165, by:510, r:10, tx:642, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:17, section:2, id:null, x:220, y:389, w:60, h:120, bx:240, by:489, r:10, tx:453, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}];
 
                         var characterDic3 = [{index:1, section:3, id:null, x:1675, y:553, w:60, h:120, bx:1695, by:653, r:10, tx:97, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:2, section:3, id:null, x:1593, y:471, w:60, h:120, bx:1695, by:571, r:10, tx:50, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:3, section:3, id:null, x:1507, y:395, w:60, h:120, bx:1527, by:495, r:10, tx:106, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:4, section:3, id:null, x:1417, y:339, w:60, h:120, bx:1437, by:439, r:10, tx:62, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:5, section:3, id:null, x:1331, y:313, w:60, h:120, bx:1351, by:413, r:10, tx:85, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:6, section:3, id:null, x:1247, y:271, w:60, h:120, bx:1267, by:371, r:10, tx:130, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:7, section:3, id:null, x:1163, y:271, w:60, h:120, bx:1183, by:371, r:10, tx:140, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:8, section:3, id:null, x:1075, y:235, w:60, h:120, bx:1095, by:335, r:10, tx:105, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:9, section:3, id:null, x:985, y:225, w:60, h:120, bx:1005, by:325, r:10, tx:146, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:10, section:3, id:null, x:925, y:195, w:60, h:120, bx:945, by:295, r:10, tx:102, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:11, section:3, id:null, x:833, y:175, w:60, h:120, bx:853, by:275, r:10, tx:65, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:12, section:3, id:null, x:747, y:187, w:60, h:120, bx:767, by:287, r:10, tx:104, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:13, section:3, id:null, x:665, y:193, w:60, h:120, bx:685, by:293, r:10, tx:121, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:14, section:3, id:null, x:805, y:415, w:60, h:120, bx:825, by:515, r:10, tx:147, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:15, section:3, id:null, x:717, y:383, w:60, h:120, bx:737, by:483, r:10, tx:80, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:16, section:3, id:null, x:637, y:364, w:60, h:120, bx:657, by:464, r:10, tx:89, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}, {index:17, section:3, id:null, x:561, y:333, w:60, h:120, bx:581, by:433, r:10, tx:71, ty:900, attack:false, throwing:false, standingurl:"http://itp.nyu.edu/~jj1357/whosample/1-1.png", throwingurl:"http://itp.nyu.edu/~jj1357/whosample/1-2.png", hidingurl:"http://itp.nyu.edu/~jj1357/whosample/1-3.png"}];
@@ -98,7 +95,11 @@
                         
                         var path = window.location.pathname;
                         var role = null;
+
                         socket.on('connect', function(){
+
+                        id = socket.socket.sessionid;	
+
                         if(path == '/display1') {
                                 role = 'display';
                                 screenNum = 1;
@@ -118,14 +119,13 @@
                                 role = 'user_group3';
                                 guiInit(role);
                         } else if(path == '/grinch') {
+                        		console.log("I'm the grinch");
                                 role = 'grinch';
-                                guiInit();
+                                guiInit(role);
                         }       
-                                socket.emit('register',role);
-                        });
-
-                        socket.on('connect', function (){
-                                id = socket.socket.sessionid;
+                                
+                        socket.emit('register',role);
+                        
                         });
                         
                         socket.on('render', function (data){
@@ -153,8 +153,7 @@
 
                                         }
                                 }
-                        
-                                
+                             
                         });
 
                         socket.on('setGrinchLoc', function (data){
@@ -163,7 +162,6 @@
                                 else if(data.section === 2) grinchScreen2 = data;
                                 else if(data.section === 3) grinchScreen3 = data;
                                 grinchIsOn = true;
-
 
                         });
 
@@ -182,11 +180,11 @@
 
                         var drawGrinch = function(data){
 
-                            context.beginPath();
-                            context.fillStyle="#00ff00";
-                            context.rect(data.x, data.y, data.w, data.h); 
-                            context.closePath();
-                            context.fill();
+                        	grinchctx.beginPath();
+                            grinchctx.fillStyle="#00ff00";
+                            grinchctx.rect(data.x, data.y, data.w, data.h); 
+                            grinchctx.closePath();
+                            grinchctx.fill();
       
                         };
 
@@ -242,21 +240,37 @@
                                         hide.innerHTML = "Hide!";
                                         container.appendChild(hide);
 
+                                } else if(role == "grinch"){
+
+                                	    var attackScreen1 = document.createElement("button");
+                                        attack.setAttribute('id','attackScreen1');
+                                        attack.setAttribute('onclick', 'attackScreen(1);');
+                                        attack.innerHTML = "attack screen1";
+                                        container.appendChild(attackScreen1);
+
+                                        var attackScreen2 = document.createElement("button");
+                                        attack.setAttribute('id','attackScreen2');
+                                        attack.setAttribute('onclick', 'attackScreen(2);');
+                                        attack.innerHTML = "attack screen2";
+                                        container.appendChild(attackScreen2);
+
+                                        var attackScreen3 = document.createElement("button");
+                                        attack.setAttribute('id','attackScreen3');
+                                        attack.setAttribute('onclick', 'attackScreen(3);');
+                                        attack.innerHTML = "attack screen1";
+                                        container.appendChild(attackScreen3);
+
                                 }
-
-                                
-
-
-                        };
+                        }
 
                         function attackPressed(_section){
 
                                 socket.emit('attack', {id: id, section: _section});
-                        };
+                        }
                                 
                         function attack(){
 
-                                var easing = 0.03;
+                                var easing = 0.2;
                                 for(var i = 0 ; i < playerList.length ; i++){
 
                                         if(playerList[i].attack === true){
@@ -268,14 +282,10 @@
                                                 dy = playerList[i].ty - playerList[i].by;
                                                 if(Math.abs(dy)>1){
                                                         playerList[i].by += dy * easing; 
-                                                                
-                                                        if(playerList[i].r >= 80){
-                                                                playerList[i].r = 80;
-                                                        } else {
-                                                                playerList[i].r++;
-                                                        }
 
-                                                        }
+                                                            playerList[i].r++;
+
+                                                } 
                                                 if(Math.abs(dx)<1 || Math.abs(dy)<1){
                                                         playerList[i].bx = playerList[i].x+19;
                                                         playerList[i].by = playerList[i].y+57;
@@ -288,116 +298,49 @@
                                
                                 }
 
-                        };
-
+                        }
 
                         function hide(){
 
-
-
-
-
-                        };
+                        }
 
                                 
                         function init(){
-                                
-                                /*
-                                bgisrendered = false;
 
-                                var hiddenCanvas = document.createElement("canvas");
-                                var theCanvas = document.createElement("canvas");
-
-                                hiddenCanvas.setAttribute('id', 'hiddenCanvas');
-                                hiddenCanvas.style.display = "none";
-                                hiddenCanvas.width = 3840;
-                               	hiddenCanvas.height = 1080;
-                                document.getElementById('viewport').appendChild(hiddenCanvas);
-
-                                theCanvas.setAttribute('id', 'theCanvas');
-                                theCanvas.style.display = "block";
-                                theCanvas.width = 3840;
-                               	theCanvas.height = 1080;
-                                document.getElementById('viewport').appendChild(theCanvas);
-
-                                tempCtx = hiddenCanvas.getContext('2d');
-                                ctx = theCanvas.getContext('2d');
-                                
-                                WIDTH = 3840;
-                                HEIGHT = 1080;
-
-								createBG_middle(screenNum);
-								*/
-                                
-                        		var canvasobj;
-                        		var canvasgroup = [];
+                                var canvasobj;
+                                var canvasgroup = [];
 
                                 for(var i = 0; i < 5 ; i++){
-                                	canvasobj = document.createElement("canvas");
-                                	canvasobj.setAttribute('id', 'canvas'+i);
-                                	canvasobj.width = 3840;
-                                	canvasobj.height = 1080;
-                                	document.getElementById('viewport').appendChild(canvasobj);
-                                	canvasgroup.push(canvasobj);
+                                    canvasobj = document.createElement("canvas");
+                                    canvasobj.setAttribute('id', 'canvas'+i);
+                                    canvasobj.width = 3840;
+                                    canvasobj.height = 1080;
+                                    document.getElementById('viewport').appendChild(canvasobj);
+                                    canvasgroup.push(canvasobj);
                                 }      
-
-                                bottomctx = document.getElementById('canvas0').getContext('2d');
+                                characterctx = document.getElementById('canvas0').getContext('2d');
                                 middlectx = document.getElementById('canvas1').getContext('2d');
                                 topctx = document.getElementById('canvas2').getContext('2d');
-                                characterctx = document.getElementById('canvas3').getContext('2d');
-                                ballctx = document.getElementById('canvas4').getContext('2d');
+                                ballctx = document.getElementById('canvas3').getContext('2d');
+                                grinchctx = document.getElementById('canvas4').getContext('2d');
 
                                 WIDTH = 3840;
                                 HEIGHT = 1080;
-								
-								createBG_middle(screenNum);
-								
-                                /*
-                                var bottomcanvas = document.createElement("canvas");
-                                var middlecanvas = document.createElement("canvas");
-                                var topcanvas = document.createElement("canvas");
-                                var usercanvas = document.createElement("canvas");
-                                var ballcanvas = document.createElement("canvas");
                                 
-                                bottomcanvas.setAttribute('id', 'bottomcanvas');
-                                bottomcanvas.setAttribute('id', 'bottomcanvas');
+                                renderBG_bottom();
+                                createBG_middle();
                                 
-                                thecanvas.width = 3840;
-                                thecanvas.height = 1080;
-                                document.body.appendChild(thecanvas);
-
-                                context = thecanvas.getContext('2d');
-                                WIDTH = thecanvas.width;
-                                HEIGHT = thecanvas.height;
-
-                                drawBG_bottom(screenNum);
-                                	
-
-                                */
-
-                                /*drawCharacter(screenNum);
-                                drawBG_middle(screenNum);
-                                var intervalId = setInterval(draw,30);///check
-                                drawBG_top(screenNum);
-                                */   
                                 var intervalId = setInterval(draw,20);///check
                                 
                                                                      
-                        };
+                        }
 
-                        function drawBG_bottom(){
+                        function renderBG_bottom(){
 
-                        		bottomctx.clearRect(0,0,WIDTH, HEIGHT);
-                        	    var bottomBG = new Image();
-                                bottomBG.src = "http://itp.nyu.edu/~jj1357/grinch_bg/bottom-screen"+screenNum+".jpg";
-                                bottomBG.width = 3840;
-                                bottomBG.height = 1080;
-                                bottomctx.drawImage(bottomBG,0,0);
-                               
-
-                        };
-
-                        var icewalls = [];   
+                            var bgurl = "url('http://itp.nyu.edu/~jj1357/grinch_bg/bottom-screen"+screenNum+".jpg')";         
+                            document.body.style.backgroundImage = bgurl;
+                            
+                        }
 
                         function createBG_middle(){
                                         
@@ -416,7 +359,7 @@
                                 
                                 }     
                         
-                        };
+                        }
 
                         function drawBG_middle(){
 
@@ -451,6 +394,7 @@
                                 topLayer.width = 3840;
                                 topLayer.height = 1080;
                                 topctx.drawImage(topLayer,0,0);
+                        
                         }
 
                         var getPlayerData = function(screenNum, data){
@@ -467,8 +411,7 @@
                                         characterDic3[data.index-1].id = data.id;
                                         playerList.push(characterDic3[data.index-1]);
 
-                                }
-                                        
+                                }             
                                         
                         };
 
@@ -478,20 +421,24 @@
                                 for(var i = 0; i < playerList.length; i++){
                                         if(playerList[i].section === data){
 
-                                        		characterctx.clearRect(img, playerList[i].x, playerList[i].y, playerList[i].w, playerList[i].h);
-                                                playerList[i].r <= 40 ? playerList[i].throwing = true : playerList[i].throwing = false;
+                                        		characterctx.clearRect(playerList[i].x, playerList[i].y, playerList[i].w, playerList[i].h);
+
+                                                if(playerList[i].attack === true || (playerList[i].by > 500 && playerList[i].by < 620 )){
+                                                    playerList[i].throwing = true;
+                                                } else {
+                                                    playerList[i].throwing = false;
+                                                }
 
                                                 var img = new Image();
                                                 if(playerList[i].throwing === true){
-                                                        img.src = playerList[i].standingurl;
-                                                }else{
                                                         img.src = playerList[i].throwingurl;
+                                                }else{
+                                                        img.src = playerList[i].standingurl;
                                                 }
                                                 characterctx.drawImage(img, playerList[i].x, playerList[i].y, playerList[i].w, playerList[i].h);        
                                         }
 
-                                }
-                                
+                                }     
                                                 
                         };
 
@@ -507,7 +454,7 @@
                                         //context.arc(playerList[i].bx,playerList[i].by, playerList[i].r,0,Math.PI*2,true);
                                         
 
-                                        if(playerList[i].by>890){
+                                        if(playerList[i].by>800){
                                                 snowImage.src = smashed;
                                         } else{
                                                 snowImage.src = snowball;
@@ -520,11 +467,12 @@
                                         
                                         
                                 }
+                        
                         };
 
                         var draw = function(){
 
-                        		drawBG_bottom();
+                        		//drawBG_bottom();
                         		//drawing order ==> BG_bottom -> characters -> BG_middle-> BG_top -> Grinch -> balls
                                 
                                 /*if(bgisrendered == false){
@@ -532,23 +480,25 @@
                                 	drawBG_middle(screenNum);
                                 	//drawBG_top(screenNum);
                                 }*/
-                                drawBG_middle(screenNum);
-                               	drawBG_top(screenNum);
 
                                 drawCharacter(screenNum);
                                 
-                                
-                                /*
+                                drawBG_middle(screenNum);
+                               	drawBG_top(screenNum);
+
+                                grinchctx.clearRect(0,0,WIDTH,HEIGHT);
+                            
                                 if(grinchIsOn === true){
                                         updateGrinch();
                                         drawGrinch(grinchScreen1);
                                         drawGrinch(grinchScreen2);
                                         drawGrinch(grinchScreen3);
                                 }
-                                */
+                                
                                 attack();
                                 drawBall();
                                 bgisrendered = true;
+                        
                         };
 
                       

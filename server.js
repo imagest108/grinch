@@ -98,12 +98,13 @@ io.sockets.on('connection', function (socket){
 			}else{
 				//make socket disconnect!
 			}
-		}  else if(data === "grinch"){
+		} else if(data === "grinch"){
                         
+            console.log("grinch found in server side");            
             if(grinch == null){                                                                
                 tempData = { 
                     id: socket.id, 
-                    index: 1,
+                    index: 999,
                     role: data
                 };
             grinch = tempData;
@@ -146,6 +147,4 @@ io.sockets.on('connection', function (socket){
 		io.sockets.socket(displaygroup[data.section-1].id).emit('renderThrow', data);
 	});
 
-
-	
 });
