@@ -21,7 +21,7 @@ var displaygroup = [];
 var usergroup1 = [];
 var usergroup2 = [];
 var usergroup3 = [];
-var grinch = null;
+var grinchID = null;
 
 
 var io = require('socket.io').listen(httpServer);
@@ -30,9 +30,10 @@ io.sockets.on('connection', function (socket){
 
 	console.log("We have a new client: " + socket.id);
 	socket.on('register', function(data){
-		//console.log(data);
+		console.log(data);
 		if( data === "display"){
-			 
+            //console.log("display socket found in server side");            
+            
 			if(displaygroup.length < 3){				
 				var tempData = { 
 					id: socket.id, 
@@ -101,13 +102,13 @@ io.sockets.on('connection', function (socket){
 		} else if(data === "grinch"){
                         
             console.log("grinch found in server side");            
-            if(grinch == null){                                                                
+            if(grinchID == null){                                                                
                 tempData = { 
                     id: socket.id, 
                     index: 999,
                     role: data
                 };
-            grinch = tempData;
+            grinchID = tempData;
                                 
 
             io.sockets.socket(displaygroup[0].id).emit('render', tempData);
@@ -119,6 +120,10 @@ io.sockets.on('connection', function (socket){
 
 
 	});
+
+	socket.on('renderPlayerImage', function (data){
+		io.sockets.socket(data.id).emit('renderPlayerImage', data);
+	})
 
 	socket.on('calibrateLoc', function (data){
 

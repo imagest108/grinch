@@ -1,12 +1,17 @@
 <html>
         <head>
-
-                <style>
+            <meta name="viewport" content="target-densitydpi=device-dpi, initial-scale=1.0, user-scalable=no" />  
+            <style>
                 body {
                     margin : 0px;
                     background-color: transparent;
                     background-repeat:no-repeat;
+                    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+                    font-weight: 300; 
+                    text-shadow: 0px 0px 1px #888;   
 
+                    font-size: 0.8em; 
+                    line-height: 1.2em; 
                 }
 
                 #viewport {
@@ -21,6 +26,91 @@
 				     */
 				    background-color: transparent;
 				}
+
+                #container{
+                   margin: 0px;
+                   max-width : 100%; 
+                   height: 100%; 
+                   padding: 0.8em;
+                   /*background-color: #E6E6E6;*/
+
+                   background-image: url("http://itp.nyu.edu/~jj1357/guibg.png");
+                   background-size:100% 100%;
+                   background-repeat:no-repeat;
+                   
+               }
+
+               #log {
+
+                   height : 30%;
+                   background-color: #FFFFFF;
+                   -moz-border-radius: 10px;
+                   -webkit-border-radius: 10px;
+                   -moz-box-shadow: inset 0 0 30px #444; 
+                   -webkit-box-shadow:inset 0 0 30px #444; 
+                   box-shadow:inset 0 0 30px #444; 
+                   
+               }
+               
+               #attack { 
+                
+                   background-color: #00ab26; 
+                   position: relative;
+                   
+               } 
+               #hide { 
+                   background-color: #d90004; 
+                   position: relative;         
+               } 
+
+               button { 
+
+                   /*basic styles*/ 
+                   margin-top: 5%;
+                   margin-left: 90px;   
+                   width: 100px; 
+                   height: 100px; 
+                   color: #fff; 
+                   text-align: center; 
+                   font-size: 1.0em; 
+                   line-height: 1.2em; 
+                   /*gradient styles*/ /*border styles*/ 
+                   -moz-border-radius: 50px; 
+                   -webkit-border-radius: 50px; 
+                   border-radius: 50px; 
+                   float: left;
+                   /*shadow styles*/ 
+                   -moz-box-shadow: 2px 3px 5px #bfbfbf; 
+                   -webkit-box-shadow: 2px 3px 5px #bfbfbf; 
+                   box-shadow: 2px 3px 5px #bfbfbf; 
+               }  
+
+                button:hover { 
+                    -moz-box-shadow:inset 0 0 30px #444; 
+                    -webkit-box-shadow:inset 0 0 30px #444; 
+                    box-shadow:inset 0 0 30px #444; 
+                } 
+                  
+                #profile {
+                    margin-left : 20px;   
+                    position: absolute;
+                }
+
+                img {
+                    height: 20%;      
+                }        
+
+                #textbox {
+                    width: 60%;
+                    height: 30%;
+                    max-width: 340px;
+                    margin-top: 20px;
+                    margin-right: 20px;
+                    position: relative;
+                    float: right;
+                    vertical-align: middle;
+                }
+
 
                 </style>
                 <script src="/socket.io/socket.io.js"></script>
@@ -194,74 +284,143 @@
                                 container.setAttribute('id', 'container');
                                 container.setAttribute("width", "320");
                                 container.setAttribute("height", "480");
-                                document.body.appendChild(container);        
+                                document.body.appendChild(container); 
 
-                                var log = document.createElement("h4");
-                                log.setAttribute('id','log');
-                                log.innerHTML = "Press the button to throw a snowball!";
-                                container.appendChild(log);
 
-                                if(role == "user_group1"){
-                                        var attack = document.createElement("button");
-                                        attack.setAttribute('id','attack');
-                                        attack.setAttribute('onclick', 'attackPressed(1);');
-                                        attack.innerHTML = "Throw the ball!";
-                                        container.appendChild(attack);
+                                if(role === "grinch"){
 
-                                        var hide = document.createElement("button");
-                                        hide.setAttribute('id','hide');
-                                        hide.setAttribute('onclick', 'hide(1);');
-                                        hide.innerHTML = "Hide!";
-                                        container.appendChild(hide);
+                                    var log = document.createElement("div");
+                                    log.setAttribute('id','log');
+                                    var profile = document.createElement("div");
+                                    profile.setAttribute('id', 'profile');
+                                    var userimage = document.createElement("img");
+                                    userimage.src = "http://www.vectorsland.com/imgd/l56756-the-grinch-logo-65964.png"
+                                    var textbox = document.createElement("div");
+                                    textbox.setAttribute('id','textbox');
+                                    textbox.innerHTML = "You're the Grinch! Press the button and attack one section of whoville! ";
+                                    
+                                    profile.appendChild(userimage);
+                                    log.appendChild(profile);
+                                    log.appendChild(textbox);
+                                    container.appendChild(log)
 
-                                } else if(role == "user_group2"){
-                                        var attack = document.createElement("button");
-                                        attack.setAttribute('id','attack');
-                                        attack.setAttribute('onclick', 'attackPressed(2);');
-                                        attack.innerHTML = "Throw the ball!";
-                                        container.appendChild(attack);
+                                    var attack1 = document.createElement("button");
+                                    attack1.setAttribute('id','attack');
+                                    attack1.setAttribute('onclick', 'attackPressed(1);');
+                                    attack1.innerHTML = "Attack land 1!";
+                                    container.appendChild(attack1);
 
-                                        var hide = document.createElement("button");
-                                        hide.setAttribute('id','hide');
-                                        hide.setAttribute('onclick', 'hide(2);');
-                                        hide.innerHTML = "Hide!";
-                                        container.appendChild(hide);
+                                    var attack2 = document.createElement("button");
+                                    attack2.setAttribute('id','attack');
+                                    attack2.setAttribute('onclick', 'attackPressed(1);');
+                                    attack2.innerHTML = "Attack land 2!";
+                                    container.appendChild(attack2);
 
-                                } else if(role == "user_group3"){
-                                        var attack = document.createElement("button");
-                                        attack.setAttribute('id','attack');
-                                        attack.setAttribute('onclick', 'attackPressed(3);');
-                                        attack.innerHTML = "Throw the ball!";
-                                        container.appendChild(attack);
+                                    var attack3 = document.createElement("button");
+                                    attack3.setAttribute('id','attack');
+                                    attack3.setAttribute('onclick', 'attackPressed(1);');
+                                    attack3.innerHTML = "Attack land 3!";
+                                    container.appendChild(attack3);
 
-                                        var hide = document.createElement("button");
-                                        hide.setAttribute('id','hide');
-                                        hide.setAttribute('onclick', 'hide(3);');
-                                        hide.innerHTML = "Hide!";
-                                        container.appendChild(hide);
+                                } else if(role === "user_group1"){
 
-                                } else if(role == "grinch"){
+                                    var log = document.createElement("div");
+                                    log.setAttribute('id','log');
+                                    var profile = document.createElement("div");
+                                    profile.setAttribute('id', 'profile');
+                                    var userimage = document.createElement("img");
+                                    userimage.setAttribute('id', 'playerimg');
+                                    var textbox = document.createElement("div");
+                                    textbox.setAttribute('id','textbox');
+                                    textbox.innerHTML = "Attack Grinch with snowballs! It's better to hide when Grinch is near you. If you don't hide and then loose a hat, you'll be over! ";
+                                    
+                                    profile.appendChild(userimage);
+                                    log.appendChild(profile);
+                                    log.appendChild(textbox);
+                                    container.appendChild(log)
 
-                                	    var attackScreen1 = document.createElement("button");
-                                        attack.setAttribute('id','attackScreen1');
-                                        attack.setAttribute('onclick', 'attackScreen(1);');
-                                        attack.innerHTML = "attack screen1";
-                                        container.appendChild(attackScreen1);
+                                    var attack = document.createElement("button");
+                                    attack.setAttribute('id','attack');
+                                    attack.setAttribute('onclick', 'attackPressed(1);');
+                                    attack.innerHTML = "Attack!";
+                                    container.appendChild(attack);
 
-                                        var attackScreen2 = document.createElement("button");
-                                        attack.setAttribute('id','attackScreen2');
-                                        attack.setAttribute('onclick', 'attackScreen(2);');
-                                        attack.innerHTML = "attack screen2";
-                                        container.appendChild(attackScreen2);
+                                    var hide = document.createElement("button");
+                                    hide.setAttribute('id','hide');
+                                    hide.setAttribute('onclick', 'hide(1);');
+                                    hide.innerHTML = "Hide!";
+                                    container.appendChild(hide);
+                                
+                                } else if(role === "user_group2"){
 
-                                        var attackScreen3 = document.createElement("button");
-                                        attack.setAttribute('id','attackScreen3');
-                                        attack.setAttribute('onclick', 'attackScreen(3);');
-                                        attack.innerHTML = "attack screen1";
-                                        container.appendChild(attackScreen3);
+                                    var log = document.createElement("div");
+                                    log.setAttribute('id','log');
+                                    var profile = document.createElement("div");
+                                    profile.setAttribute('id', 'profile');
+                                    var userimage = document.createElement("img");
+                                    userimage.setAttribute('id', 'playerimg');
+                                    var textbox = document.createElement("div");
+                                    textbox.setAttribute('id','textbox');
+                                    textbox.innerHTML = "Attack Grinch with snowballs! It's better to hide when Grinch is near you. If you don't hide and then loose a hat, you'll be over! ";
+                                    
+                                    profile.appendChild(userimage);
+                                    log.appendChild(profile);
+                                    log.appendChild(textbox);
+                                    container.appendChild(log)
 
+                                    var attack = document.createElement("button");
+                                    attack.setAttribute('id','attack');
+                                    attack.setAttribute('onclick', 'attackPressed(2);');
+                                    attack.innerHTML = "Attack!";
+                                    container.appendChild(attack);
+
+                                    var hide = document.createElement("button");
+                                    hide.setAttribute('id','hide');
+                                    hide.setAttribute('onclick', 'hide(2);');
+                                    hide.innerHTML = "Hide!";
+                                    container.appendChild(hide);
+                                
+                                }  else if(role === "user_group3"){
+
+                                    var log = document.createElement("div");
+                                    log.setAttribute('id','log');
+                                    var profile = document.createElement("div");
+                                    profile.setAttribute('id', 'profile');
+                                    var userimage = document.createElement("img");
+                                    userimage.setAttribute('id', 'playerimg');
+                                    var textbox = document.createElement("div");
+                                    textbox.setAttribute('id','textbox');
+                                    textbox.innerHTML = "Attack Grinch with snowballs! It's better to hide when Grinch is near you. If you don't hide and then loose a hat, you'll be over! ";
+                                    
+                                    profile.appendChild(userimage);
+                                    log.appendChild(profile);
+                                    log.appendChild(textbox);
+                                    container.appendChild(log)
+
+                                    var attack = document.createElement("button");
+                                    attack.setAttribute('id','attack');
+                                    attack.setAttribute('onclick', 'attackPressed(3);');
+                                    attack.innerHTML = "Attack!";
+                                    container.appendChild(attack);
+
+                                    var hide = document.createElement("button");
+                                    hide.setAttribute('id','hide');
+                                    hide.setAttribute('onclick', 'hide(3);');
+                                    hide.innerHTML = "Hide!";
+                                    container.appendChild(hide);
                                 }
+
                         }
+
+                        socket.on('renderPlayerImage', function (data){
+
+                            var userimage = document.getElementById("playerimg");
+                            userimage.src = data.url;
+                            var profile = document.getElementById("profile");
+                            profile.appendChild(userimage);
+                                    
+
+                        });
 
                         function attackPressed(_section){
 
@@ -399,20 +558,31 @@
 
                         var getPlayerData = function(screenNum, data){
 
+                                var tempUrl = null;
+                                var tempRole = null;
+
                                 if(screenNum == 1){
                                         characterDic1[data.index-1].id = data.id;
                                         playerList.push(characterDic1[data.index-1]);
+                                        tempUrl = characterDic1[data.index-1].standingurl;
+                                        tempRole = data.role;
 
                                 }else if(screenNum == 2){
                                         characterDic2[data.index-1].id = data.id;
                                         playerList.push(characterDic2[data.index-1]);
+                                        tempUrl = characterDic2[data.index-1].standingurl;
+                                        tempRole = data.role;
+
               
                                 }else if (screenNum == 3){
                                         characterDic3[data.index-1].id = data.id;
                                         playerList.push(characterDic3[data.index-1]);
+                                        tempUrl = characterDic3[data.index-1].standingurl;
+                                        tempRole = data.role;
+                                }   
 
-                                }             
-                                        
+                                var tempData = { id : data.id, role : tempRole, url : tempUrl};
+                                socket.emit("renderPlayerImage", tempData);        
                         };
 
                         var drawCharacter = function(data){
@@ -500,10 +670,7 @@
                                 bgisrendered = true;
                         
                         };
-
-                      
-
-                        
+             
                 </script>
         </head>
         <body>
